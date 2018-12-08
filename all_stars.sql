@@ -48,6 +48,10 @@ INTO TABLE temp_team
   IGNORE 1 LINES
   (league_abbrev, team_abbrev, name, arena);
 
+--
+-- 3.x production team table
+--
+
 CREATE TABLE IF NOT EXISTS team (
   team_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   league_id INTEGER NOT NULL,
@@ -78,10 +82,10 @@ WHERE tt.name IS NOT NULL
 ORDER BY tt.name DESC;
 
 --
--- 2.x team_stat table
+-- 3.x temporary team_stat table
 --
 
-CREATE TABLE IF NOT EXISTS team_stat (
+CREATE TEMPORARY TABLE temp_team_stat (
   team_stat_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   team_abbrev VARCHAR(10) NOT NULL,
   year INTEGER NOT NULL,
@@ -101,12 +105,58 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
 LOAD DATA LOCAL INFILE 'team_stat_cleaned.csv'
-INTO TABLE team_stat
+INTO TABLE temp_team_stat
   CHARACTER SET utf8mb4
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
   (team_abbrev, year, home_won, home_lost, away_won, away_lost, neut_won, neut_lost, won, lost, games);
+
+--
+-- 3.x production team_stat table
+--
+
+CREATE TABLE IF NOT EXISTS team_stat (
+  team_stat_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  team_id INTEGER NOT NULL,
+  year INTEGER NOT NULL,
+  home_won INTEGER NOT NULL,
+  home_lost INTEGER NOT NULL,
+  away_won INTEGER NOT NULL,
+  away_lost INTEGER NOT NULL,
+  neut_won INTEGER NOT NULL,
+  neut_lost INTEGER NOT NULL,
+  won INTEGER NOT NULL,
+  lost INTEGER NOT NULL,
+  games INTEGER NOT NULL,
+  PRIMARY KEY (team_stat_id),
+  FOREIGN KEY (team_id) REFERENCES team(team_id)
+  ON DELETE CASCADE ON UPDATE CASCADE
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+INSERT IGNORE INTO team_stat
+(
+  team_id,
+  year,
+  home_won,
+  home_lost,
+  away_won,
+  away_lost,
+  neut_won,
+  neut_lost,
+  won,
+  lost,
+  games
+)
+SELECT t.team_id, tts.year, tts.home_won, tts.home_lost, tts.away_won, tts.away_lost, tts.neut_won, tts.neut_lost, tts.won, tts.lost, tts.games
+FROM temp_team_stat tts
+  LEFT JOIN team t
+  ON TRIM(tts.team_abbrev) = TRIM(t.team_abbrev)
+WHERE tts.team_stat_id IS NOT NULL;
+
 
 --
 -- 2.x player_record table
