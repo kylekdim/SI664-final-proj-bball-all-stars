@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS player_record (
   college VARCHAR(50),
   birthdate VARCHAR(20),
   birth_city VARCHAR(50),
+  birth_state VARCHAR(20),
+  birth_country VARCHAR(50),
   high_school VARCHAR(50),
   hs_city VARCHAR(50),
   hs_state VARCHAR(20),
@@ -56,11 +58,11 @@ INTO TABLE player_record
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (player_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, high_school, hs_city, hs_state, hs_country, death_date, race);
+  (player_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, birth_state, birth_country, high_school, hs_city, hs_state, hs_country, death_date, race);
 
--- ------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Create Temp Tables to Create Foreign Keys
--- ------------------------------------------
+-- --------------------------------------------------------------------------------
 
 
 --
@@ -286,6 +288,9 @@ LEFT JOIN player_record pr
 ON TRIM(tas.player_id_long) = TRIM(pr.player_id_long)
 LEFT JOIN league l
 ON TRIM(tas.league_abbrev) = TRIM(l.league_abbrev)
-WHERE tas.all_star_id IS NOT NULL
-ORDER BY tas.league_id, tas.year;
+WHERE tas.all_star_id IS NOT NULL;
+
+DROP TEMPORARY TABLE temp_team;
+DROP TEMPORARY TABLE temp_team_stat;
+DROP TEMPORARY TABLE temp_all_star;
 
