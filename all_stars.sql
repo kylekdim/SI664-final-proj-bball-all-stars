@@ -19,9 +19,48 @@ INSERT IGNORE INTO league (league_abbrev, league_name) VALUES
   ('NBA', 'National Basketball Association'), ('ABL1', 'American Basketball League'), ('ABA', 'American Basketball Association'), ('NBL', 'National Basketball League'), ('PBLA', 'Professional Basketball League of America'); 
 
 
--- 
--- Create Temp Tables to Create Foreign Keys
 --
+-- 2.x player_record table
+--
+
+CREATE TABLE IF NOT EXISTS player_record (
+  player_record_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  player_id_long VARCHAR(10) NOT NULL UNIQUE,
+  first_name VARCHAR(30),
+  middle_name VARCHAR(30),
+  last_name VARCHAR(30) NOT NULL,
+  full_given_name VARCHAR(100),
+  name_suffix VARCHAR(5),
+  nickname VARCHAR(30),
+  pos VARCHAR(10),
+  height INTEGER,
+  weight INTEGER,
+  college VARCHAR(50),
+  birthdate VARCHAR(20),
+  birth_city VARCHAR(50),
+  high_school VARCHAR(50),
+  hs_city VARCHAR(50),
+  hs_state VARCHAR(20),
+  hs_country VARCHAR(30),
+  death_date VARCHAR(20),
+  race VARCHAR(3),
+  PRIMARY KEY (player_record_id)
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+LOAD DATA LOCAL INFILE 'basketball_master_cleaned.csv'
+INTO TABLE player_record
+  CHARACTER SET utf8mb4
+  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES
+  (player_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, high_school, hs_city, hs_state, hs_country, death_date, race);
+
+-- ------------------------------------------
+-- Create Temp Tables to Create Foreign Keys
+-- ------------------------------------------
 
 
 --
@@ -159,56 +198,17 @@ WHERE tts.team_stat_id IS NOT NULL;
 
 
 --
--- 2.x player_record table
---
-
-CREATE TABLE IF NOT EXISTS player_record (
-  player_record_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
-  player_id_long VARCHAR(10) NOT NULL UNIQUE,
-  first_name VARCHAR(30),
-  middle_name VARCHAR(30),
-  last_name VARCHAR(30) NOT NULL,
-  full_given_name VARCHAR(100),
-  name_suffix VARCHAR(5),
-  nickname VARCHAR(30),
-  pos VARCHAR(10),
-  height INTEGER,
-  weight INTEGER,
-  college VARCHAR(50),
-  birthdate VARCHAR(20),
-  birth_city VARCHAR(50),
-  high_school VARCHAR(50),
-  hs_city VARCHAR(50),
-  hs_state VARCHAR(20),
-  hs_country VARCHAR(30),
-  death_date VARCHAR(20),
-  race VARCHAR(3),
-  PRIMARY KEY (player_record_id)
-)
-ENGINE=InnoDB
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_0900_ai_ci;
-
-LOAD DATA LOCAL INFILE 'basketball_master_cleaned.csv'
-INTO TABLE player_record
-  CHARACTER SET utf8mb4
-  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-  LINES TERMINATED BY '\n'
-  IGNORE 1 LINES
-  (player_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, high_school, hs_city, hs_state, hs_country, death_date, race);
-
---
 -- 2.x all_star table
 --
 
-CREATE TABLE IF NOT EXISTS all_star (
+CREATE TEMPORARY TABLE temp_all_star (
   all_star_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   player_id_long VARCHAR(10) NOT NULL,
-  last_name VARCHAR(30) NOT NULL,
-  first_name VARCHAR(30) NOT NULL,
   year INTEGER NOT NULL,
-  games_played INTEGER NOT NULL,
-  minutes INTEGER NOT NULL,
+  conference VARCHAR(20) NOT NULL,
+  league_abbrev VARCHAR(20) NOT NULL,
+  games_played INTEGER,
+  minutes INTEGER,
   points INTEGER,
   rebounds INTEGER,
   assists INTEGER,
@@ -226,9 +226,66 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
 LOAD DATA LOCAL INFILE 'all_star_cleaned.csv'
-INTO TABLE all_star
+INTO TABLE temp_all_star
   CHARACTER SET utf8mb4
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (player_id_long, last_name, first_name, year, games_played, minutes, points, rebounds, assists, steals, blocks, turnovers, ft_attempted, ft_made, three_attempted, three_made);
+  (player_id_long, year, conference, league_abbrev, games_played, minutes, points, rebounds, assists, steals, blocks, turnovers, ft_attempted, ft_made, three_attempted, three_made);
+
+CREATE TABLE IF NOT EXISTS all_star (
+  all_star_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  player_record_id INTEGER NOT NULL,
+  year INTEGER NOT NULL,
+  conference VARCHAR(20),
+  league_id INTEGER NOT NULL,
+  games_played INTEGER,
+  minutes INTEGER,
+  points INTEGER,
+  rebounds INTEGER,
+  assists INTEGER,
+  steals INTEGER,
+  blocks INTEGER,
+  turnovers INTEGER,
+  ft_attempted INTEGER,
+  ft_made INTEGER,
+  three_attempted INTEGER,
+  three_made INTEGER,
+  PRIMARY KEY (all_star_id),
+  FOREIGN KEY (player_record_id) REFERENCES player_record(player_record_id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (league_id) REFERENCES league(league_id)
+  ON DELETE CASCADE ON UPDATE CASCADE
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+INSERT IGNORE INTO all_star
+(
+  player_record_id,
+  year,
+  conference,
+  league_id,
+  games_played,
+  minutes,
+  points,
+  rebounds,
+  assists,
+  steals,
+  blocks,
+  turnovers,
+  ft_attempted,
+  ft_made,
+  three_attempted,
+  three_made
+)
+SELECT pr.player_record_id, tas.year, tas.conference, l.league_id, tas.games_played, tas.minutes, tas.points, tas.rebounds, tas.assists, tas.steals, tas.blocks, tas.turnovers, tas.ft_attempted, tas.ft_made, tas.three_attempted, tas.three_made
+FROM temp_all_star tas
+LEFT JOIN player_record pr
+ON TRIM(tas.player_id_long) = TRIM(pr.player_id_long)
+LEFT JOIN league l
+ON TRIM(tas.league_abbrev) = TRIM(l.league_abbrev)
+WHERE tas.all_star_id IS NOT NULL
+ORDER BY tas.league_id, tas.year;
+
