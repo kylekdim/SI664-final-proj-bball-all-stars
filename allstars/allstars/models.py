@@ -6,15 +6,14 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from django.urls import reverse
 
 
 class AllStar(models.Model):
     all_star_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey('PersonRecord', on_delete=models.PROTECT)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
     year = models.IntegerField()
     conference = models.CharField(max_length=20, blank=True, null=True)
-    league = models.ForeignKey('League', on_delete=models.PROTECT)
+    league = models.ForeignKey('League', models.DO_NOTHING)
     games_played = models.IntegerField(blank=True, null=True)
     minutes = models.IntegerField(blank=True, null=True)
     points = models.IntegerField(blank=True, null=True)
@@ -101,10 +100,10 @@ class AuthUserUserPermissions(models.Model):
 
 class Coach(models.Model):
     coach_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey('PersonRecord', on_delete=models.PROTECT)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
     year = models.IntegerField()
-    team = models.ForeignKey('Team', on_delete=models.PROTECT)
-    league = models.ForeignKey('League', on_delete=models.PROTECT)
+    team = models.ForeignKey('Team', models.DO_NOTHING)
+    league = models.ForeignKey('League', models.DO_NOTHING)
     won = models.IntegerField(blank=True, null=True)
     lost = models.IntegerField(blank=True, null=True)
 
@@ -157,25 +156,6 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
-class Draft(models.Model):
-    draft_id = models.AutoField(primary_key=True)
-    year = models.IntegerField()
-    draft_round = models.IntegerField()
-    draft_selection = models.IntegerField()
-    draft_overall = models.IntegerField()
-    team = models.ForeignKey('Team', on_delete=models.PROTECT)
-    first_name = models.CharField(max_length=30, blank=True, null=True)
-    last_name = models.CharField(max_length=30, blank=True, null=True)
-    name_suffix = models.CharField(max_length=5, blank=True, null=True)
-    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING, blank=True, null=True)
-    draft_from = models.CharField(max_length=100, blank=True, null=True)
-    league = models.ForeignKey('League', on_delete=models.PROTECT)
-
-    class Meta:
-        managed = False
-        db_table = 'draft'
-
-
 class League(models.Model):
     league_id = models.AutoField(primary_key=True)
     league_abbrev = models.CharField(unique=True, max_length=10)
@@ -210,7 +190,6 @@ class PersonRecord(models.Model):
     death_date = models.CharField(max_length=20, blank=True, null=True)
     race = models.CharField(max_length=3, blank=True, null=True)
 
-    # Intermediate model (team -> draft <- person_record)
     class Meta:
         managed = False
         db_table = 'person_record'
@@ -227,9 +206,26 @@ class Team(models.Model):
         db_table = 'team'
 
 
+class TeamAlign(models.Model):
+    team_align_id = models.AutoField(primary_key=True)
+    person_record = models.ForeignKey(PersonRecord, models.DO_NOTHING)
+    year = models.IntegerField()
+    stint = models.IntegerField(blank=True, null=True)
+    team = models.ForeignKey(Team, models.DO_NOTHING)
+    league = models.ForeignKey(League, models.DO_NOTHING)
+    games_played = models.IntegerField(blank=True, null=True)
+    minutes = models.IntegerField(blank=True, null=True)
+    points = models.IntegerField(blank=True, null=True)
+    assists = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'team_align'
+
+
 class TeamStat(models.Model):
     team_stat_id = models.AutoField(primary_key=True)
-    team = models.ForeignKey(Team, on_delete=models.PROTECT)
+    team = models.ForeignKey(Team, models.DO_NOTHING)
     year = models.IntegerField()
     home_won = models.IntegerField()
     home_lost = models.IntegerField()

@@ -61,43 +61,40 @@ class CoachAdmin(admin.ModelAdmin):
 # admin.site.register(models.Coach)
 
 
-@admin.register(models.Draft)
-class DraftAdmin(admin.ModelAdmin):
-	fields = [
-		'year',
-		'draft_round',
-		'draft_selection',
-		'draft_overall',
-		'team',
-		'first_name',
-		'last_name',
-		'name_suffix',
-		'person_record',
-		'draft_from',
-		'league'
+@admin.register(models.TeamAlign)
+class TeamAlignAdmin(admin.ModelAdmin):
+	fields = [ 
+    	'person_record',
+    	'year',
+    	'stint',
+    	'team',
+    	'league',
+    	'games_played',
+    	'minutes',
+    	'points',
+    	'assists'
 	]
 
 	list_display = [
-		'year',
-		'draft_round',
-		'draft_selection',
-		'draft_overall',
-		'team',
-		'first_name',
-		'last_name',
-		'name_suffix',
-		'person_record',
-		'draft_from',
-		'league'
+    	'person_record',
+    	'year',
+    	'stint',
+    	'team',
+    	'league',
+    	'games_played',
+    	'minutes',
+    	'points',
+    	'assists'
 	]
 
 	list_filter = [
+		'person_record',
 		'year',
 		'team',
 		'league'
 	]
 
-# admin.site.register(models.Draft)
+# admin.site.register(models.TeamAlign)
 
 
 @admin.register(models.League)
