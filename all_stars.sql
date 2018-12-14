@@ -1,5 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS player_award, player_award_record, league, all_star, team, team_stat, player_record, player_align;
+
+DROP TABLE IF EXISTS player_award, player_award_record, league, all_star, team, team_stat, player_record, draft, temp_draft;
 SET FOREIGN_KEY_CHECKS=1;
 
 --
@@ -74,20 +75,19 @@ CREATE TEMPORARY TABLE temp_team (
   league_abbrev VARCHAR(10) NOT NULL,
   team_abbrev VARCHAR (10) NOT NULL,
   name VARCHAR(100) NOT NULL,
-  arena VARCHAR(100),
   PRIMARY KEY (team_id)
 )
 ENGINE=InnoDB
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
-LOAD DATA LOCAL INFILE 'team_dedup.csv'
+LOAD DATA LOCAL INFILE 'team_dedup2.csv'
 INTO TABLE temp_team
   CHARACTER SET utf8mb4
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (league_abbrev, team_abbrev, name, arena);
+  (league_abbrev, team_abbrev, name);
 
 --
 -- 3.x production team table
@@ -98,7 +98,6 @@ CREATE TABLE IF NOT EXISTS team (
   league_id INTEGER NOT NULL,
   team_abbrev VARCHAR (10) NOT NULL,
   name VARCHAR(100) NOT NULL,
-  arena VARCHAR(100),
   PRIMARY KEY (team_id),
   FOREIGN KEY (league_id) REFERENCES league(league_id)
   ON DELETE CASCADE ON UPDATE CASCADE
@@ -112,15 +111,13 @@ INSERT IGNORE INTO team
   team_id,
   league_id,
   team_abbrev,
-  name,
-  arena
+  name
 )
-SELECT tt.team_id, l.league_id, tt.team_abbrev, tt.name, tt.arena
+SELECT tt.team_id, l.league_id, tt.team_abbrev, tt.name
 FROM temp_team tt
   LEFT JOIN league l
   ON TRIM(tt.league_abbrev) = TRIM(l.league_abbrev)
-WHERE tt.name IS NOT NULL
-ORDER BY tt.name DESC;
+WHERE tt.name IS NOT NULL;
 
 --
 -- 3.x temporary team_stat table
@@ -197,6 +194,7 @@ FROM temp_team_stat tts
   LEFT JOIN team t
   ON TRIM(tts.team_abbrev) = TRIM(t.team_abbrev)
 WHERE tts.team_stat_id IS NOT NULL;
+
 
 
 --
@@ -290,7 +288,95 @@ LEFT JOIN league l
 ON TRIM(tas.league_abbrev) = TRIM(l.league_abbrev)
 WHERE tas.all_star_id IS NOT NULL;
 
+
+--
+-- 2.x draft temp table
+--
+
+CREATE TEMPORARY TABLE temp_draft (
+  draft_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  year INTEGER,
+  draft_round INTEGER,
+  draft_selection INTEGER,
+  draft_overall INTEGER,
+  team_abbrev VARCHAR(10),
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  name_suffix VARCHAR(5),
+  player_id_long VARCHAR(10),
+  draft_from VARCHAR(100),
+  league_abbrev VARCHAR(4)
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+LOAD DATA LOCAL INFILE 'basketball_draft.csv'
+INTO TABLE temp_draft
+  CHARACTER SET utf8mb4
+  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES
+  (year, draft_round, draft_selection, draft_overall, team_abbrev, first_name, last_name, name_suffix, player_id_long, draft_from, league_abbrev);
+
+--
+-- Quotes stuck in the league_abbrev above, update the table to get them out.
+--
+UPDATE temp_draft SET league_abbrev = REPLACE(league_abbrev, '"', '');
+
+
+CREATE TABLE IF NOT EXISTS draft (
+  draft_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  year INTEGER NOT NULL,
+  draft_round INTEGER NOT NULL,
+  draft_selection INTEGER NOT NULL,
+  draft_overall INTEGER NOT NULL,
+  team_id INTEGER NOT NULL,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  name_suffix VARCHAR(5),
+  player_record_id INTEGER,
+  draft_from VARCHAR(100),
+  league_id INTEGER NOT NULL,
+  PRIMARY KEY (draft_id),
+  FOREIGN KEY (team_id) REFERENCES team(team_id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (player_record_id) REFERENCES player_record(player_record_id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (league_id) REFERENCES league(league_id)
+  ON DELETE CASCADE ON UPDATE CASCADE
+)
+
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+INSERT IGNORE INTO draft
+(
+  draft_id,
+  year,
+  draft_round,
+  draft_selection,
+  draft_overall,
+  team_id,
+  first_name,
+  last_name,
+  name_suffix,
+  player_record_id,
+  draft_from,
+  league_id
+)
+SELECT td.draft_id, td.year, td.draft_round, td.draft_selection, td.draft_overall, t.team_id, td.first_name, td.last_name, td.name_suffix, pr.player_record_id, td.draft_from, l.league_id
+FROM temp_draft td
+LEFT JOIN team t
+ON TRIM(td.team_abbrev) = TRIM(t.team_abbrev)
+LEFT JOIN player_record pr
+ON TRIM(td.player_id_long) = TRIM(pr.player_id_long)
+LEFT JOIN league l
+ON TRIM(td.league_abbrev) = TRIM(l.league_abbrev);
+
+
 DROP TEMPORARY TABLE temp_team;
 DROP TEMPORARY TABLE temp_team_stat;
 DROP TEMPORARY TABLE temp_all_star;
-
+DROP TEMPORARY TABLE temp_draft;

@@ -1,2 +1,5 @@
 #ignore the config file
 all_stars.yaml
+
+#ignore virtual env directory 
+venv_as/
