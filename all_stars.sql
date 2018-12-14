@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS player_award, player_award_record, league, all_star, team, team_stat, player_record, draft, temp_draft;
+DROP TABLE IF EXISTS league, all_star, team, team_stat, draft, person_record, coach;
 SET FOREIGN_KEY_CHECKS=1;
 
 --
@@ -21,12 +21,12 @@ INSERT IGNORE INTO league (league_abbrev, league_name) VALUES
 
 
 --
--- 2.x player_record table
+-- 2.x person_record table
 --
 
-CREATE TABLE IF NOT EXISTS player_record (
-  player_record_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
-  player_id_long VARCHAR(10) NOT NULL UNIQUE,
+CREATE TABLE IF NOT EXISTS person_record (
+  person_record_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  person_id_long VARCHAR(10) NOT NULL UNIQUE,
   first_name VARCHAR(30),
   middle_name VARCHAR(30),
   last_name VARCHAR(30) NOT NULL,
@@ -47,19 +47,19 @@ CREATE TABLE IF NOT EXISTS player_record (
   hs_country VARCHAR(30),
   death_date VARCHAR(20),
   race VARCHAR(3),
-  PRIMARY KEY (player_record_id)
+  PRIMARY KEY (person_record_id)
 )
 ENGINE=InnoDB
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
 LOAD DATA LOCAL INFILE 'basketball_master_cleaned.csv'
-INTO TABLE player_record
+INTO TABLE person_record
   CHARACTER SET utf8mb4
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (player_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, birth_state, birth_country, high_school, hs_city, hs_state, hs_country, death_date, race);
+  (person_id_long, first_name, middle_name, last_name, full_given_name, name_suffix, nickname, pos, height, weight, college, birthdate, birth_city, birth_state, birth_country, high_school, hs_city, hs_state, hs_country, death_date, race);
 
 -- --------------------------------------------------------------------------------
 -- Create Temp Tables to Create Foreign Keys
@@ -96,7 +96,7 @@ INTO TABLE temp_team
 CREATE TABLE IF NOT EXISTS team (
   team_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   league_id INTEGER NOT NULL,
-  team_abbrev VARCHAR (10) NOT NULL,
+  team_id VARCHAR (10) NOT NULL,
   name VARCHAR(100) NOT NULL,
   PRIMARY KEY (team_id),
   FOREIGN KEY (league_id) REFERENCES league(league_id)
@@ -203,7 +203,7 @@ WHERE tts.team_stat_id IS NOT NULL;
 
 CREATE TEMPORARY TABLE temp_all_star (
   all_star_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
-  player_id_long VARCHAR(10) NOT NULL,
+  person_id_long VARCHAR(10) NOT NULL,
   year INTEGER NOT NULL,
   conference VARCHAR(20) NOT NULL,
   league_abbrev VARCHAR(20) NOT NULL,
@@ -231,11 +231,11 @@ INTO TABLE temp_all_star
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (player_id_long, year, conference, league_abbrev, games_played, minutes, points, rebounds, assists, steals, blocks, turnovers, ft_attempted, ft_made, three_attempted, three_made);
+  (person_id_long, year, conference, league_abbrev, games_played, minutes, points, rebounds, assists, steals, blocks, turnovers, ft_attempted, ft_made, three_attempted, three_made);
 
 CREATE TABLE IF NOT EXISTS all_star (
   all_star_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
-  player_record_id INTEGER NOT NULL,
+  person_record_id INTEGER NOT NULL,
   year INTEGER NOT NULL,
   conference VARCHAR(20),
   league_id INTEGER NOT NULL,
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS all_star (
   three_attempted INTEGER,
   three_made INTEGER,
   PRIMARY KEY (all_star_id),
-  FOREIGN KEY (player_record_id) REFERENCES player_record(player_record_id)
+  FOREIGN KEY (person_record_id) REFERENCES person_record(person_record_id)
   ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (league_id) REFERENCES league(league_id)
   ON DELETE CASCADE ON UPDATE CASCADE
@@ -263,7 +263,8 @@ COLLATE utf8mb4_0900_ai_ci;
 
 INSERT IGNORE INTO all_star
 (
-  player_record_id,
+  all_star_id,
+  person_record_id,
   year,
   conference,
   league_id,
@@ -280,10 +281,10 @@ INSERT IGNORE INTO all_star
   three_attempted,
   three_made
 )
-SELECT pr.player_record_id, tas.year, tas.conference, l.league_id, tas.games_played, tas.minutes, tas.points, tas.rebounds, tas.assists, tas.steals, tas.blocks, tas.turnovers, tas.ft_attempted, tas.ft_made, tas.three_attempted, tas.three_made
+SELECT tas.all_star_id, pr.person_record_id, tas.year, tas.conference, l.league_id, tas.games_played, tas.minutes, tas.points, tas.rebounds, tas.assists, tas.steals, tas.blocks, tas.turnovers, tas.ft_attempted, tas.ft_made, tas.three_attempted, tas.three_made
 FROM temp_all_star tas
-LEFT JOIN player_record pr
-ON TRIM(tas.player_id_long) = TRIM(pr.player_id_long)
+LEFT JOIN person_record pr
+ON TRIM(tas.person_id_long) = TRIM(pr.person_id_long)
 LEFT JOIN league l
 ON TRIM(tas.league_abbrev) = TRIM(l.league_abbrev)
 WHERE tas.all_star_id IS NOT NULL;
@@ -303,7 +304,7 @@ CREATE TEMPORARY TABLE temp_draft (
   first_name VARCHAR(30),
   last_name VARCHAR(30),
   name_suffix VARCHAR(5),
-  player_id_long VARCHAR(10),
+  person_id_long VARCHAR(10),
   draft_from VARCHAR(100),
   league_abbrev VARCHAR(4)
 )
@@ -317,12 +318,16 @@ INTO TABLE temp_draft
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (year, draft_round, draft_selection, draft_overall, team_abbrev, first_name, last_name, name_suffix, player_id_long, draft_from, league_abbrev);
+  (year, draft_round, draft_selection, draft_overall, team_abbrev, first_name, last_name, name_suffix, person_id_long, draft_from, league_abbrev);
 
 --
 -- Quotes stuck in the league_abbrev above, update the table to get them out.
 --
 UPDATE temp_draft SET league_abbrev = REPLACE(league_abbrev, '"', '');
+
+--
+-- 3.x draft production table
+--
 
 
 CREATE TABLE IF NOT EXISTS draft (
@@ -335,13 +340,13 @@ CREATE TABLE IF NOT EXISTS draft (
   first_name VARCHAR(30),
   last_name VARCHAR(30),
   name_suffix VARCHAR(5),
-  player_record_id INTEGER,
+  person_record_id INTEGER,
   draft_from VARCHAR(100),
   league_id INTEGER NOT NULL,
   PRIMARY KEY (draft_id),
   FOREIGN KEY (team_id) REFERENCES team(team_id)
   ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (player_record_id) REFERENCES player_record(player_record_id)
+  FOREIGN KEY (person_record_id) REFERENCES person_record(person_record_id)
   ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (league_id) REFERENCES league(league_id)
   ON DELETE CASCADE ON UPDATE CASCADE
@@ -362,21 +367,92 @@ INSERT IGNORE INTO draft
   first_name,
   last_name,
   name_suffix,
-  player_record_id,
+  person_record_id,
   draft_from,
   league_id
 )
-SELECT td.draft_id, td.year, td.draft_round, td.draft_selection, td.draft_overall, t.team_id, td.first_name, td.last_name, td.name_suffix, pr.player_record_id, td.draft_from, l.league_id
+SELECT td.draft_id, td.year, td.draft_round, td.draft_selection, td.draft_overall, t.team_id, td.first_name, td.last_name, td.name_suffix, pr.person_record_id, td.draft_from, l.league_id
 FROM temp_draft td
 LEFT JOIN team t
 ON TRIM(td.team_abbrev) = TRIM(t.team_abbrev)
-LEFT JOIN player_record pr
-ON TRIM(td.player_id_long) = TRIM(pr.player_id_long)
+LEFT JOIN person_record pr
+ON TRIM(td.person_id_long) = TRIM(pr.person_id_long)
 LEFT JOIN league l
 ON TRIM(td.league_abbrev) = TRIM(l.league_abbrev);
 
+--
+-- 2.x temp_coach table
+--
+
+
+CREATE TEMPORARY TABLE temp_coach (
+  coach_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  person_id_long VARCHAR(10) NOT NULL,
+  year INTEGER NOT NULL,
+  team_abbrev VARCHAR(20) NOT NULL,
+  league_abbrev VARCHAR(20) NOT NULL,
+  won INTEGER,
+  lost INTEGER,
+  PRIMARY KEY (coach_id)
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+LOAD DATA LOCAL INFILE 'basketball_coaches_cleaned.csv'
+INTO TABLE temp_coach
+  CHARACTER SET utf8mb4
+  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES
+  (person_id_long, year, team_abbrev, league_abbrev, won, lost);
+
+
+--
+-- 3.x production coach table
+--
+
+CREATE TABLE IF NOT EXISTS coach (
+  coach_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  person_record_id INTEGER NOT NULL,
+  year INTEGER NOT NULL,
+  team_id INTEGER NOT NULL,
+  league_id INTEGER NOT NULL,
+  won INTEGER,
+  lost INTEGER,
+  PRIMARY KEY (coach_id),
+  FOREIGN KEY (person_record_id) REFERENCES person_record(person_record_id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (team_id) REFERENCES team(team_id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (league_id) REFERENCES league(league_id)
+  ON DELETE CASCADE ON UPDATE CASCADE
+)
+ENGINE=InnoDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+INSERT IGNORE INTO coach
+(
+  coach_id,
+  person_record_id,
+  year,
+  team_id,
+  league_id,
+  won,
+  lost
+)
+SELECT tc.coach_id, pr.person_record_id, tc.year, t.team_id, l.league_id, tc.won, tc.lost
+FROM temp_coach tc
+  LEFT JOIN person_record pr
+  ON TRIM(tc.person_id_long) = TRIM(pr.person_id_long)
+  LEFT JOIN team t 
+  ON TRIM(tc.team_abbrev) = TRIM(t.team_abbrev)
+  LEFT JOIN league l
+  ON TRIM(tc.league_abbrev) = TRIM(l.league_abbrev);
 
 DROP TEMPORARY TABLE temp_team;
 DROP TEMPORARY TABLE temp_team_stat;
 DROP TEMPORARY TABLE temp_all_star;
 DROP TEMPORARY TABLE temp_draft;
+DROP TEMPORARY TABLE temp_coach;
