@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS league, all_star, team, team_stat, draft, person_record, coach;
+DROP TABLE IF EXISTS league, all_star, team, team_stat, person_record, coach, team_align, temp_team_align;
 SET FOREIGN_KEY_CHECKS=1;
 
 --
@@ -294,56 +294,49 @@ WHERE tas.all_star_id IS NOT NULL;
 -- 2.x draft temp table
 --
 
-CREATE TEMPORARY TABLE temp_draft (
-  draft_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
-  year INTEGER,
-  draft_round INTEGER,
-  draft_selection INTEGER,
-  draft_overall INTEGER,
-  team_abbrev VARCHAR(10),
-  first_name VARCHAR(30),
-  last_name VARCHAR(30),
-  name_suffix VARCHAR(5),
-  person_id_long VARCHAR(10),
-  draft_from VARCHAR(100),
-  league_abbrev VARCHAR(4)
+CREATE TEMPORARY TABLE temp_team_align (
+  team_align_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  person_id_long VARCHAR(10) NOT NULL,
+  year INTEGER NOT NULL,
+  stint INTEGER,
+  team_abbrev VARCHAR(3) NOT NULL,
+  league_abbrev VARCHAR(10) NOT NULL,
+  games_played INTEGER,
+  minutes INTEGER,
+  points INTEGER,
+  assists INTEGER
 )
 ENGINE=InnoDB
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
-LOAD DATA LOCAL INFILE 'basketball_draft.csv'
-INTO TABLE temp_draft
+LOAD DATA LOCAL INFILE 'basketball_team_align.csv'
+INTO TABLE temp_team_align
   CHARACTER SET utf8mb4
   FIELDS TERMINATED BY ',' ENCLOSED BY '"'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES
-  (year, draft_round, draft_selection, draft_overall, team_abbrev, first_name, last_name, name_suffix, person_id_long, draft_from, league_abbrev);
+  (person_id_long, year, stint, team_abbrev, league_abbrev, games_played, minutes, points, assists);
 
---
--- Quotes stuck in the league_abbrev above, update the table to get them out.
---
-UPDATE temp_draft SET league_abbrev = REPLACE(league_abbrev, '"', '');
+
 
 --
 -- 3.x draft production table
 --
 
 
-CREATE TABLE IF NOT EXISTS draft (
-  draft_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+CREATE TABLE IF NOT EXISTS team_align (
+  team_align_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
+  person_record_id INTEGER NOT NULL,
   year INTEGER NOT NULL,
-  draft_round INTEGER NOT NULL,
-  draft_selection INTEGER NOT NULL,
-  draft_overall INTEGER NOT NULL,
+  stint INTEGER,
   team_id INTEGER NOT NULL,
-  first_name VARCHAR(30),
-  last_name VARCHAR(30),
-  name_suffix VARCHAR(5),
-  person_record_id INTEGER,
-  draft_from VARCHAR(100),
   league_id INTEGER NOT NULL,
-  PRIMARY KEY (draft_id),
+  games_played INTEGER,
+  minutes INTEGER,
+  points INTEGER,
+  assists INTEGER,
+  PRIMARY KEY (team_align_id),
   FOREIGN KEY (team_id) REFERENCES team(team_id)
   ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (person_record_id) REFERENCES person_record(person_record_id)
@@ -356,29 +349,27 @@ ENGINE=InnoDB
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
 
-INSERT IGNORE INTO draft
+INSERT IGNORE INTO team_align
 (
-  draft_id,
-  year,
-  draft_round,
-  draft_selection,
-  draft_overall,
-  team_id,
-  first_name,
-  last_name,
-  name_suffix,
+  team_align_id,
   person_record_id,
-  draft_from,
-  league_id
+  year,
+  stint,
+  team_id,
+  league_id,
+  games_played,
+  minutes,
+  points,
+  assists
 )
-SELECT td.draft_id, td.year, td.draft_round, td.draft_selection, td.draft_overall, t.team_id, td.first_name, td.last_name, td.name_suffix, pr.person_record_id, td.draft_from, l.league_id
-FROM temp_draft td
-LEFT JOIN team t
-ON TRIM(td.team_abbrev) = TRIM(t.team_abbrev)
+SELECT tta.team_align_id, pr.person_record_id, tta.year, tta.stint, t.team_id, l.league_id, tta.games_played, tta.minutes, tta.points, tta.assists
+FROM temp_team_align tta
 LEFT JOIN person_record pr
-ON TRIM(td.person_id_long) = TRIM(pr.person_id_long)
+ON TRIM(tta.person_id_long) = TRIM(pr.person_id_long)
+LEFT JOIN team t
+ON TRIM(tta.team_abbrev) = TRIM(t.team_abbrev)
 LEFT JOIN league l
-ON TRIM(td.league_abbrev) = TRIM(l.league_abbrev);
+ON TRIM(tta.league_abbrev) = TRIM(l.league_abbrev);
 
 --
 -- 2.x temp_coach table
@@ -454,5 +445,5 @@ FROM temp_coach tc
 DROP TEMPORARY TABLE temp_team;
 DROP TEMPORARY TABLE temp_team_stat;
 DROP TEMPORARY TABLE temp_all_star;
-DROP TEMPORARY TABLE temp_draft;
+DROP TEMPORARY TABLE temp_team_align;
 DROP TEMPORARY TABLE temp_coach;
