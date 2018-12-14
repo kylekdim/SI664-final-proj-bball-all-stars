@@ -3,3 +3,6 @@ all_stars.yaml
 
 #ignore virtual env directory 
 venv_as/
+
+#ds store
+.DS_store
