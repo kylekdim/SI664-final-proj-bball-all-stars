@@ -96,7 +96,7 @@ INTO TABLE temp_team
 CREATE TABLE IF NOT EXISTS team (
   team_id INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   league_id INTEGER NOT NULL,
-  team_id VARCHAR (10) NOT NULL,
+  team_abbrev VARCHAR (10) NOT NULL,
   name VARCHAR(100) NOT NULL,
   PRIMARY KEY (team_id),
   FOREIGN KEY (league_id) REFERENCES league(league_id)
