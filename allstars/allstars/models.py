@@ -10,7 +10,7 @@ from django.db import models
 
 class AllStar(models.Model):
     all_star_id = models.AutoField(primary_key=True)
-    player_record = models.ForeignKey('PlayerRecord', models.DO_NOTHING)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
     year = models.IntegerField()
     conference = models.CharField(max_length=20, blank=True, null=True)
     league = models.ForeignKey('League', models.DO_NOTHING)
@@ -98,6 +98,20 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
+class Coach(models.Model):
+    coach_id = models.AutoField(primary_key=True)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
+    year = models.IntegerField()
+    team = models.ForeignKey('Team', models.DO_NOTHING)
+    league = models.ForeignKey('League', models.DO_NOTHING)
+    won = models.IntegerField(blank=True, null=True)
+    lost = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'coach'
+
+
 class DjangoAdminLog(models.Model):
     action_time = models.DateTimeField()
     object_id = models.TextField(blank=True, null=True)
@@ -142,6 +156,25 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class Draft(models.Model):
+    draft_id = models.AutoField(primary_key=True)
+    year = models.IntegerField()
+    draft_round = models.IntegerField()
+    draft_selection = models.IntegerField()
+    draft_overall = models.IntegerField()
+    team = models.ForeignKey('Team', models.DO_NOTHING)
+    first_name = models.CharField(max_length=30, blank=True, null=True)
+    last_name = models.CharField(max_length=30, blank=True, null=True)
+    name_suffix = models.CharField(max_length=5, blank=True, null=True)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING, blank=True, null=True)
+    draft_from = models.CharField(max_length=100, blank=True, null=True)
+    league = models.ForeignKey('League', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'draft'
+
+
 class League(models.Model):
     league_id = models.AutoField(primary_key=True)
     league_abbrev = models.CharField(unique=True, max_length=10)
@@ -152,9 +185,9 @@ class League(models.Model):
         db_table = 'league'
 
 
-class PlayerRecord(models.Model):
-    player_record_id = models.AutoField(primary_key=True)
-    player_id_long = models.CharField(unique=True, max_length=10)
+class PersonRecord(models.Model):
+    person_record_id = models.AutoField(primary_key=True)
+    person_id_long = models.CharField(unique=True, max_length=10)
     first_name = models.CharField(max_length=30, blank=True, null=True)
     middle_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30)
@@ -178,7 +211,7 @@ class PlayerRecord(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'player_record'
+        db_table = 'person_record'
 
 
 class Team(models.Model):
@@ -186,7 +219,6 @@ class Team(models.Model):
     league = models.ForeignKey(League, models.DO_NOTHING)
     team_abbrev = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
-    arena = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         managed = False
