@@ -22,8 +22,9 @@ from django.urls import path, include
 
 # Use static() to add url mapping to serve static files during development (only)
 
+
 urlpatterns = [
-    url(r'^$', lambda r: HttpResponseRedirect('allstars/')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^allstars/', include('allstars.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('', lambda r: HttpResponseRedirect('allstars/')),
+    path('admin/', admin.site.urls),
+    path('allstars/', include('allstars.urls')),
+]

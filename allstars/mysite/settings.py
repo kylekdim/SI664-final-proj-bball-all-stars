@@ -37,8 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'allstars.apps.AllstarsConfig'
+    'allstars.apps.AllstarsConfig',
+    'test_without_migrations'
 ]
+
+# Add a custom test runner for converting unmanaged models to managed before
+# running a test and then revert the effect afterwards.
+
+TEST_RUNNER = 'allstars.utils.UnManagedModelTestRunner'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
