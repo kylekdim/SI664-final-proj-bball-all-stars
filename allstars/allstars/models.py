@@ -146,12 +146,12 @@ class AllStar(models.Model):
     class Meta:
         managed = False
         db_table = 'all_star'
-        ordering = ['person_record__last_name']
+        ordering = ['person_record__last_name', 'person_record__first_name', 'league__league_name']
         verbose_name = 'Basketball All Star Records'
         verbose_name_plural = 'Basketball All Star Records'
 
     def __str__(self):
-        return self.person_record__first_name + self.person_record__last_name
+        return self.person_record.first_name + self.person_record.last_name
 
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])
@@ -317,7 +317,7 @@ class TeamStat(models.Model):
         verbose_name_plural = "Men's Professional Basketball Team Stats"
 
     def __str__(self):
-        return self.year + self.team__name
+        return str(self.team_stat_id)
 
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])

@@ -1,0 +1,98 @@
+{% extends 'allstars/base.html' %}
+
+   {% block content %}
+     <header>
+       <div class="row">
+         <div class="col-sm-10">
+           <h2>{{ team_list.name | safe }} ({{ team_list.league__league_abbrev | safe }})</h2>
+         </div>
+        </div>
+     </header>
+
+     <p>Years Active: {{ team_stat_list.count }}</p>
+
+      {% for item in team_stat_list %}
+      <p>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Year:</p>
+          </div>
+          <div class="col-sm-10">
+            <p><b>{{ item.year }}</b></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Home Won:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.home_won }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Home Lost:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.home_lost }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Away Won:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.away_won }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Away Lost:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.away_lost }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Neut Won:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.neut_won }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Neut Lost:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.neut_lost }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Total Won:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.won }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Total Lost:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.lost }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Games Played:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.games }}</p>
+          </div>
+        </div>
+      {% endfor %}
+
+    {% endblock content %}

@@ -16,12 +16,12 @@
 
   {% include '/Users/beefbeverly/Documents/GitHub/SI664-Final-Project-Mens-Basketball/allstars/allstars/templates/allstars/pagination.html' %} 
 
-  {% if all_stars_list %}
+  {% if team_list %}
   <ul>
 
-    {% for player in all_stars_list %} 
+    {% for team in team_list %} 
 
-    <li><a href="{% url 'all_star_detail' player.person_record__person_record_id %}">{{ player.person_record__first_name }} {{ player.person_record__last_name }}</a></li>
+    <li><a href="{% url 'team_detail' team.team_id %}">{{ team.name }} ({{ team.league__league_abbrev }})</a></li>
     
     {% endfor %}
 
@@ -31,7 +31,7 @@
   <p>No players are available to view.</p>
   {% endif %}
 
-  <p>page count: {{ all_stars_list.count }}</p>
+  <p>page count: {{ team_list.count }}</p>
 </article>
 
 {% endblock content %}

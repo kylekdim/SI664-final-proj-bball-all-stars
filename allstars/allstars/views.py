@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse, reverse_lazy
 from .models import *
+from django.db.models import Count, F
+from django.db.models import Aggregate
 
 def index(request):
    return HttpResponse("Hello, world. You're at the Basketball All-Stars index.")
@@ -20,9 +22,60 @@ class AllStarListView(generic.ListView):
 	paginate_by = 100
 
 	def get_queryset(self):
-		return AllStar.objects.all().order_by('person_record')
+		return AllStar.objects.select_related('person_record', 'league').values('person_record__person_record_id', 'person_record__first_name', 'person_record__last_name').order_by().distinct()
 
 class AllStarDetailView(generic.DetailView):
 	model = PersonRecord
-	context_object_name = 'all_star_player'
+	context_object_name = 'person_list'
 	template_name = 'allstars/allstardetail.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(AllStarDetailView, self).get_context_data(**kwargs)
+		context['all_star_list'] = AllStar.objects.select_related('league').values().filter(person_record__person_record_id=self.kwargs['pk']).order_by('year')
+		print(context)
+		# And so on for more models
+		return context
+
+class TeamListView(generic.ListView):
+	model = Team
+	context_object_name = 'team_list'
+	template_name = 'allstars/teamlist.html'
+	paginate_by = 40
+
+	def get_queryset(self):
+		return Team.objects.select_related('league').values('team_id', 'league__league_abbrev', 'name').order_by('league__league_abbrev', 'name')
+
+
+class TeamDetailView(generic.DetailView):
+	model = Team
+	context_object_name = 'team_list'
+	template_name = 'allstars/teamdetail.html'
+
+	def get_queryset(self):
+		return Team.objects.select_related('league').values('team_id', 'league__league_abbrev', 'name')
+
+	def get_context_data(self, **kwargs):
+
+		context = super(TeamDetailView, self).get_context_data(**kwargs)
+		#team_pk = context['team_list'].team_id
+		#print(team_pk)
+		context['team_stat_list'] = TeamStat.objects.select_related('team').filter(team__team_id=self.kwargs['pk'])
+		print(context)
+		# And so on for more models
+		return context
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+

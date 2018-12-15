@@ -1,11 +1,163 @@
 {% extends 'allstars/base.html' %}
+
    {% block content %}
      <header>
        <div class="row">
          <div class="col-sm-10">
-           <h2>{{ AllStar.all_star_id | safe }}</h2>
+           <h2>{{ person_list.first_name | safe}} {{ person_list.last_name | safe }}</h2>
          </div>
         </div>
      </header>
-   
 
+             <div class="row">
+          <div class="col-sm-2">
+            <p>Years on All-Star Team:</p>
+          </div>
+          <div class="col-sm-10">
+            <p> {{ all_star_list.count }}
+            </div>
+        </div>
+
+      {% if person_list.birthdate %}
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Birthdate</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ person_list.birthdate }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+       {% for item in all_star_list %}
+      <p>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Year:</p>
+          </div>
+          <div class="col-sm-10">
+            <p><b>{{ item.year }}</b></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Conference:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.conference }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>League:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.league__league_abbrev }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Games Played:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.games_played }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Minutes Played:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.minutes }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Points:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.points }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Rebounds: </p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.neut_lost }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Assists:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.assists }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Steals:</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.steals }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Blocks</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ item.blocks }}</p>
+          </div>
+        </div>
+      {% endfor %}
+     
+
+
+      {% if country.iso_alpha3_code %}
+        <div class="row">
+          <div class="col-sm-2">
+            <p>ISO Alpha 3 code</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ country.iso_alpha3_code }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if country.location.region.region_name %}
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Region</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ country.location.region.region_name }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if country.location.sub_region.sub_region_name %}
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Subregion</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ country.location.sub_region.sub_region_name }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if country.location.intermediate_region.intermediate_region_name %}
+        <div class="row">
+          <div class="col-sm-2">
+            <p>Intermediate region</p>
+          </div>
+          <div class="col-sm-10">
+            <p>{{ country.location.intermediate_region.intermediate_region_name }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+
+    {% endblock content %}
