@@ -146,12 +146,12 @@ class AllStar(models.Model):
     class Meta:
         managed = False
         db_table = 'all_star'
-        ordering = ['player_record__last_name']
+        ordering = ['person_record__last_name']
         verbose_name = 'Basketball All Star Records'
         verbose_name_plural = 'Basketball All Star Records'
 
     def __str__(self):
-        return self.player_record__first_name + self.player_record__last_name
+        return self.person_record__first_name + self.person_record__last_name
 
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])
