@@ -30,6 +30,15 @@ class AllStar(models.Model):
     class Meta:
         managed = False
         db_table = 'all_star'
+        ordering = ['player_record__last_name']
+        verbose_name = 'Basketball All Star Records'
+        verbose_name_plural = 'Basketball All Star Records'
+
+    def __str__(self):
+        return self.player_record__first_name + self.player_record__last_name
+
+    def get_absolute_url(self):
+        return reverse('country_detail', args=[str(self.id)])
 
 
 class AuthGroup(models.Model):
@@ -98,20 +107,6 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
-class Coach(models.Model):
-    coach_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
-    year = models.IntegerField()
-    team = models.ForeignKey('Team', models.DO_NOTHING)
-    league = models.ForeignKey('League', models.DO_NOTHING)
-    won = models.IntegerField(blank=True, null=True)
-    lost = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'coach'
-
-
 class DjangoAdminLog(models.Model):
     action_time = models.DateTimeField()
     object_id = models.TextField(blank=True, null=True)
@@ -165,6 +160,16 @@ class League(models.Model):
         managed = False
         db_table = 'league'
 
+class Team(models.Model):
+    team_id = models.AutoField(primary_key=True)
+    league = models.ForeignKey(League, models.DO_NOTHING)
+    team_abbrev = models.CharField(max_length=10)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        managed = False
+        db_table = 'team'
+
 
 class PersonRecord(models.Model):
     person_record_id = models.AutoField(primary_key=True)
@@ -190,29 +195,32 @@ class PersonRecord(models.Model):
     death_date = models.CharField(max_length=20, blank=True, null=True)
     race = models.CharField(max_length=3, blank=True, null=True)
 
+    # Intermediate model (team -> team_align <- person_record)
+    teams_as_player = models.ManyToManyField(
+        Team,
+        through='TeamAlign',
+        related_name='players'
+    )
+
+    # Intermediate model (team -> coach <- person_record)
+    teams_as_coach = models.ManyToManyField(
+        Team,
+        through='Coach',
+        related_name='coaches'
+    )
+
     class Meta:
         managed = False
         db_table = 'person_record'
 
 
-class Team(models.Model):
-    team_id = models.AutoField(primary_key=True)
-    league = models.ForeignKey(League, models.DO_NOTHING)
-    team_abbrev = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'team'
-
-
 class TeamAlign(models.Model):
     team_align_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey(PersonRecord, models.DO_NOTHING)
+    person_record = models.ForeignKey(PersonRecord, on_delete=models.CASCADE)
     year = models.IntegerField()
     stint = models.IntegerField(blank=True, null=True)
-    team = models.ForeignKey(Team, models.DO_NOTHING)
-    league = models.ForeignKey(League, models.DO_NOTHING)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
     games_played = models.IntegerField(blank=True, null=True)
     minutes = models.IntegerField(blank=True, null=True)
     points = models.IntegerField(blank=True, null=True)
@@ -222,6 +230,18 @@ class TeamAlign(models.Model):
         managed = False
         db_table = 'team_align'
 
+class Coach(models.Model):
+    coach_id = models.AutoField(primary_key=True)
+    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
+    year = models.IntegerField()
+    team = models.ForeignKey('Team', models.DO_NOTHING)
+    league = models.ForeignKey('League', models.DO_NOTHING)
+    won = models.IntegerField(blank=True, null=True)
+    lost = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'coach'
 
 class TeamStat(models.Model):
     team_stat_id = models.AutoField(primary_key=True)
