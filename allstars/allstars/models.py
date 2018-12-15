@@ -7,39 +7,9 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
-
-class AllStar(models.Model):
-    all_star_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
-    year = models.IntegerField()
-    conference = models.CharField(max_length=20, blank=True, null=True)
-    league = models.ForeignKey('League', models.DO_NOTHING)
-    games_played = models.IntegerField(blank=True, null=True)
-    minutes = models.IntegerField(blank=True, null=True)
-    points = models.IntegerField(blank=True, null=True)
-    rebounds = models.IntegerField(blank=True, null=True)
-    assists = models.IntegerField(blank=True, null=True)
-    steals = models.IntegerField(blank=True, null=True)
-    blocks = models.IntegerField(blank=True, null=True)
-    turnovers = models.IntegerField(blank=True, null=True)
-    ft_attempted = models.IntegerField(blank=True, null=True)
-    ft_made = models.IntegerField(blank=True, null=True)
-    three_attempted = models.IntegerField(blank=True, null=True)
-    three_made = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'all_star'
-        ordering = ['player_record__last_name']
-        verbose_name = 'Basketball All Star Records'
-        verbose_name_plural = 'Basketball All Star Records'
-
-    def __str__(self):
-        return self.player_record__first_name + self.player_record__last_name
-
-    def get_absolute_url(self):
-        return reverse('country_detail', args=[str(self.id)])
-
+#=====================================================================
+# Auto-Generated Model Classes from Django
+#=====================================================================
 
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=80)
@@ -150,6 +120,42 @@ class DjangoSession(models.Model):
         managed = False
         db_table = 'django_session'
 
+#============================================================================
+# Database Model Classes
+#============================================================================
+
+class AllStar(models.Model):
+    all_star_id = models.AutoField(primary_key=True)
+    person_record = models.ForeignKey('PersonRecord', on_delete=models.PROTECT)
+    year = models.IntegerField()
+    conference = models.CharField(max_length=20, blank=True, null=True)
+    league = models.ForeignKey('League', on_delete=models.PROTECT)
+    games_played = models.IntegerField(blank=True, null=True)
+    minutes = models.IntegerField(blank=True, null=True)
+    points = models.IntegerField(blank=True, null=True)
+    rebounds = models.IntegerField(blank=True, null=True)
+    assists = models.IntegerField(blank=True, null=True)
+    steals = models.IntegerField(blank=True, null=True)
+    blocks = models.IntegerField(blank=True, null=True)
+    turnovers = models.IntegerField(blank=True, null=True)
+    ft_attempted = models.IntegerField(blank=True, null=True)
+    ft_made = models.IntegerField(blank=True, null=True)
+    three_attempted = models.IntegerField(blank=True, null=True)
+    three_made = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'all_star'
+        ordering = ['player_record__last_name']
+        verbose_name = 'Basketball All Star Records'
+        verbose_name_plural = 'Basketball All Star Records'
+
+    def __str__(self):
+        return self.player_record__first_name + self.player_record__last_name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
+
 
 class League(models.Model):
     league_id = models.AutoField(primary_key=True)
@@ -159,16 +165,34 @@ class League(models.Model):
     class Meta:
         managed = False
         db_table = 'league'
+        ordering = ['league_name']
+        verbose_name = "Men's Professional Basketball League"
+        verbose_name_plural = "Men's Professional Basketball Leagues"
+
+    def __str__(self):
+        return self.league_name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
 
 class Team(models.Model):
     team_id = models.AutoField(primary_key=True)
-    league = models.ForeignKey(League, models.DO_NOTHING)
+    league = models.ForeignKey(League, on_delete=models.PROTECT)
     team_abbrev = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
 
     class Meta:
         managed = False
         db_table = 'team'
+        ordering = ['name']
+        verbose_name = "Men's Professional Basketball Team"
+        verbose_name_plural = "Men's Professional Basketball Teams"
+
+    def __str__(self):
+        return self.name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
 
 
 class PersonRecord(models.Model):
@@ -212,6 +236,15 @@ class PersonRecord(models.Model):
     class Meta:
         managed = False
         db_table = 'person_record'
+        ordering = ['last_name','first_name']
+        verbose_name = "Men's Professional Basketball Player/Coach"
+        verbose_name_plural = "Men's Professional Basketball Players/Coaches"
+
+    def __str__(self):
+        return self.first_name + self.last_name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
 
 
 class TeamAlign(models.Model):
@@ -229,23 +262,42 @@ class TeamAlign(models.Model):
     class Meta:
         managed = False
         db_table = 'team_align'
+        ordering = ['team__name']
+        verbose_name = "Men's Professional Basketball Player/Team Alignment"
+        verbose_name_plural = "Men's Professional Basketball Player/Team Alignment"
+
+    def __str__(self):
+        return self.first_name + self.last_name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
 
 class Coach(models.Model):
     coach_id = models.AutoField(primary_key=True)
-    person_record = models.ForeignKey('PersonRecord', models.DO_NOTHING)
+    person_record = models.ForeignKey('PersonRecord', on_delete=models.PROTECT)
     year = models.IntegerField()
-    team = models.ForeignKey('Team', models.DO_NOTHING)
-    league = models.ForeignKey('League', models.DO_NOTHING)
+    team = models.ForeignKey('Team', on_delete=models.PROTECT)
+    league = models.ForeignKey('League', on_delete=models.PROTECT)
     won = models.IntegerField(blank=True, null=True)
     lost = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'coach'
+        ordering = ['person_record__last_name', 'person_record__first_name']
+        verbose_name = "Men's Professional Basketball Coach/Team Alignment"
+        verbose_name_plural = "Men's Professional Basketball Coach/Team Alignment"
+
+    def __str__(self):
+        return self.person_record__first_name + self.person_record__last_name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
+
 
 class TeamStat(models.Model):
     team_stat_id = models.AutoField(primary_key=True)
-    team = models.ForeignKey(Team, models.DO_NOTHING)
+    team = models.ForeignKey(Team, on_delete=models.PROTECT)
     year = models.IntegerField()
     home_won = models.IntegerField()
     home_lost = models.IntegerField()
@@ -260,3 +312,12 @@ class TeamStat(models.Model):
     class Meta:
         managed = False
         db_table = 'team_stat'
+        ordering = ['year', 'team__name']
+        verbose_name = "Men's Professional Basketball Team Stats"
+        verbose_name_plural = "Men's Professional Basketball Team Stats"
+
+    def __str__(self):
+        return self.year + self.team__name
+
+    #def get_absolute_url(self):
+        #return reverse('country_detail', args=[str(self.id)])
