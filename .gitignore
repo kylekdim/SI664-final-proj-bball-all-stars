@@ -5,7 +5,9 @@ all_stars.yaml
 venv_as/
 
 #ds store
+/.DS_store
 .DS_store
 
 #secret settings/keys, etc
 allstars/mysite/settings_secret.py
+allstars/mysite/secret.py
