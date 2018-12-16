@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
 from django.urls import path, include
 
@@ -26,5 +27,9 @@ from django.urls import path, include
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('allstars/')),
     path('admin/', admin.site.urls),
+    path('auth/', include('social_django.urls', namespace='social')),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL},
+         name='logout'),
     path('allstars/', include('allstars.urls')),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

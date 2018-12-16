@@ -5,6 +5,8 @@ from django.urls import reverse, reverse_lazy
 from .models import *
 from django.db.models import Count, F
 from django.db.models import Aggregate
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 def index(request):
    return HttpResponse("Hello, world. You're at the Basketball All-Stars index.")
@@ -36,20 +38,28 @@ class AllStarDetailView(generic.DetailView):
 		# And so on for more models
 		return context
 
+
+@method_decorator(login_required, name='dispatch')
 class TeamListView(generic.ListView):
 	model = Team
 	context_object_name = 'team_list'
 	template_name = 'allstars/teamlist.html'
 	paginate_by = 40
 
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
+
 	def get_queryset(self):
 		return Team.objects.all().select_related('league').values('team_id', 'league__league_abbrev', 'name').order_by('league__league_abbrev', 'name')
 
-
+@method_decorator(login_required, name='dispatch')
 class TeamDetailView(generic.DetailView):
 	model = Team
 	context_object_name = 'team_list'
 	template_name = 'allstars/teamdetail.html'
+
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
 
 	def get_queryset(self):
 		return Team.objects.select_related('league').values('team_id', 'league__league_abbrev', 'name')
