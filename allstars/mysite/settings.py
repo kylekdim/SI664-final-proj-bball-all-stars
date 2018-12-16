@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from settings_secret import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rf4hz_#=$$^!-adtz(-1)1=i6))_of29s2=2q!_@mcv*c0&#y#'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -147,9 +148,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '378825900650-2eqaurbq5r584t00rbs27p52aul2adib.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'qPBHssOLkCsoBEWvrrczONzc'
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
