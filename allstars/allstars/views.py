@@ -57,14 +57,41 @@ class TeamDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 
 		context = super(TeamDetailView, self).get_context_data(**kwargs)
-		#team_pk = context['team_list'].team_id
 		#print(team_pk)
 		context['team_stat_list'] = TeamStat.objects.select_related('team').filter(team__team_id=self.kwargs['pk'])
 		print(context)
 		# And so on for more models
 		return context
 
-	
+class PersonListView(generic.ListView):
+	model = PersonRecord
+	context_object_name = 'person_list'
+	template_name = 'allstars/personlist.html'
+	paginate_by = 200
+
+	def get_queryset(self):
+		return PersonRecord.objects.all().order_by('last_name')
+
+
+class PersonDetailView(generic.DetailView):
+	model = PersonRecord
+	context_object_name = 'person_record_list'
+	template_name = 'allstars/persondetail.html'
+
+	def get_queryset(self):
+		return PersonRecord.objects.select_related('league').values()
+
+	def get_context_data(self, **kwargs):
+
+		context = super(PersonDetailView, self).get_context_data(**kwargs)
+		#print(team_pk)
+		context['team_align_list'] = TeamAlign.objects.select_related('person_record', 'league', 'team').values('league__league_abbrev', 'team__name', 'year', 'stint', 'games_played', 'minutes', 'points', 'assists').filter(person_record__person_record_id=self.kwargs['pk']).order_by('year')
+		context['coach_list'] = Coach.objects.select_related('person_record', 'league', 'team').values('league__league_abbrev', 'team__name', 'year', 'won', 'lost').filter(person_record__person_record_id=self.kwargs['pk']).order_by('year')
+		print(context)
+		# And so on for more models
+		return context
+
+
 
 
 

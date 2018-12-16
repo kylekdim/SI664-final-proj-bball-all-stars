@@ -7,7 +7,9 @@ urlpatterns = [
    path('aslist/', views.AllStarListView.as_view(), name='all_stars'),
    path('aslist/<int:pk>/', views.AllStarDetailView.as_view(), name='all_star_detail'),
    path('teamlist/', views.TeamListView.as_view(), name='teams'),
-   path('teamlist/<int:pk>/', views.TeamDetailView.as_view(), name='team_detail')
+   path('teamlist/<int:pk>/', views.TeamDetailView.as_view(), name='team_detail'),
+   path('personlist/', views.PersonListView.as_view(), name='people'),
+   path('personlist/<int:pk>/', views.PersonDetailView.as_view(), name='person_detail')
 
    #The two URLs below were added during the midterm:
    #path('countries/', views.CountryAreaListView.as_view(), name='countries'),

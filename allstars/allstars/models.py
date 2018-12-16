@@ -267,7 +267,7 @@ class TeamAlign(models.Model):
         verbose_name_plural = "Men's Professional Basketball Player/Team Alignment"
 
     def __str__(self):
-        return self.first_name + self.last_name
+        return self.person_record.first_name + self.person_record.last_name
 
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])
@@ -289,7 +289,7 @@ class Coach(models.Model):
         verbose_name_plural = "Men's Professional Basketball Coach/Team Alignment"
 
     def __str__(self):
-        return self.person_record__first_name + self.person_record__last_name
+        return self.person_record.first_name + self.person_record.last_name
 
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])
