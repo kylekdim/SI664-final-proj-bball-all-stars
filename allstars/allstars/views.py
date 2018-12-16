@@ -43,7 +43,7 @@ class TeamListView(generic.ListView):
 	paginate_by = 40
 
 	def get_queryset(self):
-		return Team.objects.select_related('league').values('team_id', 'league__league_abbrev', 'name').order_by('league__league_abbrev', 'name')
+		return Team.objects.all().select_related('league').values('team_id', 'league__league_abbrev', 'name').order_by('league__league_abbrev', 'name')
 
 
 class TeamDetailView(generic.DetailView):
