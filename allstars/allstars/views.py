@@ -219,7 +219,9 @@ class PersonDeleteView(generic.DeleteView):
 
 class PersonRecordFilterView(FilterView):
 	filterset_class = PersonRecordFilter
+	context_object_name = 'person_record_list'
 	template_name = 'allstars/person_filter.html'
+	paginate_by = 200
 
 
 

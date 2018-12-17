@@ -33,15 +33,12 @@
 
       {% for person in person_record_list %}
         <h4><a href="{% url 'person_detail' person.person_record_id %}">{{ person.first_name }} {{ person.last_name }}</a></h4>
-        {% if site.country_area_names %}
-          <p>{{ person.country_area_names }}</p>
-        {% endif %}
-        {% if site.description %}
-          {{ site.description | safe }}
-        {% endif %}
+
     {% empty %}
       Select one or more filters relevant to your search and then click "filter".
     {% endfor %}
+
+
     </div>
   </div>
 {% endblock content %}
