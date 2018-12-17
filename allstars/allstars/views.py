@@ -1,13 +1,16 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django.urls import reverse, reverse_lazy
 from .models import *
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.db.models import Aggregate
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from allstars.forms import PersonForm, SearchForm
+
+from django.contrib import messages
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 def index(request):
    return HttpResponse("Hello, world. You're at the Basketball All-Stars index.")
@@ -109,7 +112,7 @@ class PersonCreateView(generic.View):
 	success_message = "Person Record created successfully"
 	template_name = 'allstars/person_new.html'
 	# fields = '__all__' <-- superseded by form_class
-	# success_url = reverse_lazy('heritagesites/site_list')
+	# success_url = reverse_lazy('allstars/personlist')
 
 	def dispatch(self, *args, **kwargs):
 		return super().dispatch(*args, **kwargs)
@@ -117,12 +120,17 @@ class PersonCreateView(generic.View):
 	def post(self, request):
 		form = PersonForm(request.POST)
 		if form.is_valid():
+			print("form is valid")
 			person = form.save(commit=False)
 			person.save()
+			print(person)
 			#for country in form.cleaned_data['country_area']:
-				#HeritageSiteJurisdiction.objects.create(heritage_site=site, country_area=country)
-			return redirect(person) # shortcut to object's get_absolute_url()
-			# return HttpResponseRedirect(site.get_absolute_url())
+			return redirect('/allstars/personlist/')# shortcut to object's get_absolute_url()
+			#return HttpResponseRedirect(person.get_absolute_url())
+			#return redirect(person) # shortcut to object's get_absolute_url()
+			#return HttpResponseRedirect(
+
+		print("form was not valid")
 		return render(request, 'allstars/person_new.html', {'form': form})
 
 	def get(self, request):
@@ -179,17 +187,17 @@ class PersonUpdateView(generic.UpdateView):
 				#HeritageSiteJurisdiction.objects \
 					#.filter(heritage_site_id=site.heritage_site_id, country_area_id=old_id) \
 					#.delete()
-
-		return HttpResponseRedirect(person.get_absolute_url())
+		return redirect('/allstars/personlist/')
+		#return HttpResponseRedirect(person.get_absolute_url())
 		# return redirect('heritagesites/site_detail', pk=site.pk)
 
 @method_decorator(login_required, name='dispatch')
 class PersonDeleteView(generic.DeleteView):
 	model = PersonRecord
 	success_message = "Person Record deleted successfully"
-	success_url = reverse_lazy('person')
+	success_url = reverse_lazy('person_detail')
 	context_object_name = 'person'
-	template_name = 'allstars/site_delete.html'
+	template_name = 'allstars/person_delete.html'
 
 	def dispatch(self, *args, **kwargs):
 		return super().dispatch(*args, **kwargs)
@@ -204,7 +212,8 @@ class PersonDeleteView(generic.DeleteView):
 
 		self.object.delete()
 
-		return HttpResponseRedirect(self.get_success_url())
+		return redirect('/allstars/personlist/')
+		#return redirect('allstars/person_detail', pk=person_record.person_record_id)
 
 
 

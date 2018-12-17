@@ -7,6 +7,7 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.urls import reverse
+import datetime
 
 #=====================================================================
 # Auto-Generated Model Classes from Django
@@ -209,7 +210,7 @@ class PersonRecord(models.Model):
     height = models.IntegerField(blank=True, null=True)
     weight = models.IntegerField(blank=True, null=True)
     college = models.CharField(max_length=50, blank=True, null=True)
-    birthdate = models.CharField(max_length=20, blank=True, null=True)
+    birthdate = models.DateField(blank=True, null=True)
     birth_city = models.CharField(max_length=50, blank=True, null=True)
     birth_state = models.CharField(max_length=20, blank=True, null=True)
     birth_country = models.CharField(max_length=50, blank=True, null=True)
@@ -224,14 +225,14 @@ class PersonRecord(models.Model):
     teams_as_player = models.ManyToManyField(
         Team,
         through='TeamAlign',
-        related_name='players'
+        related_name='player_on_team'
     )
 
     # Intermediate model (team -> coach <- person_record)
     teams_as_coach = models.ManyToManyField(
         Team,
         through='Coach',
-        related_name='coaches'
+        related_name='coach_on_team'
     )
 
     class Meta:

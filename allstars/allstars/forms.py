@@ -17,7 +17,7 @@ class PersonForm(forms.ModelForm):
 
 
 class SearchForm(forms.ModelForm):
-	date_inscribed = forms.IntegerField(
+	height = forms.IntegerField(
 		label='height',
 		required=False
 	)
