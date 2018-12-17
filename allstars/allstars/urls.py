@@ -9,6 +9,7 @@ urlpatterns = [
    path('teamlist/', views.TeamListView.as_view(), name='teams'),
    path('teamlist/<int:pk>/', views.TeamDetailView.as_view(), name='team_detail'),
    path('personlist/', views.PersonListView.as_view(), name='people'),
+   path('personfilter/', views.PersonRecordFilterView.as_view(), name='person_filter'),
    path('personlist/<int:pk>/', views.PersonDetailView.as_view(), name='person_detail'),
    path('personlist/new/', views.PersonCreateView.as_view(), name='person_new'),
    path('personlist/<int:pk>/delete/', views.PersonDeleteView.as_view(), name='person_delete'),

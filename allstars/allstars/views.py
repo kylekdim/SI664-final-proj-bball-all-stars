@@ -11,6 +11,8 @@ from allstars.forms import PersonForm, SearchForm
 
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django_filters.views import FilterView
+from allstars.filters import PersonRecordFilter
 
 def index(request):
    return HttpResponse("Hello, world. You're at the Basketball All-Stars index.")
@@ -215,7 +217,9 @@ class PersonDeleteView(generic.DeleteView):
 		return redirect('/allstars/personlist/')
 		#return redirect('allstars/person_detail', pk=person_record.person_record_id)
 
-
+class PersonRecordFilterView(FilterView):
+	filterset_class = PersonRecordFilter
+	template_name = 'allstars/person_filter.html'
 
 
 

@@ -248,6 +248,29 @@ class PersonRecord(models.Model):
     #def get_absolute_url(self):
         #return reverse('country_detail', args=[str(self.id)])
 
+    @property
+    def team_names(self):
+        """
+        Returns a list of UNSD regions (names only) associated with a Heritage Site.
+        Note that not all Heritage Sites are associated with a region. In such cases the
+        Queryset will return as <QuerySet [None]> and the list will need to be checked for
+        None or a TypeError (sequence item 0: expected str instance, NoneType found) runtime
+        error will be thrown.
+        :return: string
+        """
+        sort_order = ['team_align__team__team_name']
+        teams = self.teams_as_player.select_related('team_align').order_by(*sort_order)
+        # countries_sorted = sorted(countries, key=lambda o: o.location.region.region_name)
+
+        names = []
+        for team in teams:
+            name = team.team_align.team_name
+            if name not in names:
+                names.append(name)
+
+        return ', '.join(names)
+
+
 
 class TeamAlign(models.Model):
     team_align_id = models.AutoField(primary_key=True)
