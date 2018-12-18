@@ -36,6 +36,9 @@ Refer to [mwb_models]() for the raw mysql model file.
 
 ## Package Dependencies
 
+Can be loaded from [requirements.txt](https://github.com/kylekdim/SI664-final-proj-bball-all-stars/blob/master/requirements.txt).
+
+
 |Package                      | Version  |
 |:----------------------------|---------:|
 |beautifulsoup4|                 4.6.3   | 
