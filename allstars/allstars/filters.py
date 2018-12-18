@@ -47,7 +47,7 @@ class PersonRecordFilter(django_filters.FilterSet):
 
 	pos = django_filters.CharFilter(
 		field_name='pos',
-		label='Position',
+		label='Position (e.g. "F")',
 		lookup_expr='icontains'
 	)
 
@@ -87,7 +87,7 @@ class PersonRecordFilter(django_filters.FilterSet):
 
 	birth_country = django_filters.CharFilter(
 		field_name='birth_country',
-		label='Birth Country',
+		label='Birth Country (ISO-3166-1 ALPHA-3)',
 		lookup_expr='icontains'
 	)
 
@@ -111,7 +111,7 @@ class PersonRecordFilter(django_filters.FilterSet):
 
 	hs_country = django_filters.CharFilter(
 		field_name='hs_country',
-		label='High School Country',
+		label='High School Country (ISO-3166-1 ALPHA-3)',
 		lookup_expr='icontains'
 	)
 
