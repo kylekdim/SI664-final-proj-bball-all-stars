@@ -7,6 +7,7 @@ Create a fully functional Django database of player/coach/team/all-star records 
 
 The generated website has the following pages in its navbar:
 
++ **"Home":** A basic homepage with the nav options explained. The explanations below are also used on the homepage.
 + **"About":** A brief explanation of what data the site contains and the data source.
 + **"All-Stars":** A list view of all players who have been designated 'all-stars' in their respective league(s). Clicking on a name will show a detail view profile for the player containing stats for years they were active.
 + **"Team List":** ***NEED AUTHENTICATION TO ACCESS*** A list view of teams for all professional basketball leagues. Each team has their league next to it, and clicking on a team name will show a detail view for the team with their W/L record for each year they were active.
