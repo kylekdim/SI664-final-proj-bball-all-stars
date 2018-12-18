@@ -16,13 +16,13 @@ Create a fully functional Django database of player/coach/team/all-star records 
 Refer to [mwb_models](https://github.com/kylekdim/SI664-Final-Project-Mens-Basketball/tree/master/mwb_models) for the raw mysql model file.
 
 ### Table Overview (7):
--**AllStar**: A table with each row representing a year that a player(PersonRecord) played on a league's All-Star Team, and accompanying play stats.
--**League**: A table of leagues where each row represents a professional basketball league.
--**Team:** A table of teams where each row represents a professional basketball team, and its name/league details.
--**TeamAlign:** A table with each row representing a year that a person played for a team, and accompanying play stats during that stint.
--**Coach:** A table with each row representing a year that a person coached for a team, and their accompanying play record for that year.
--**TeamStat:** A table with each row representing a year a team played during the regular season, and their teamwide performance and record.
--**PersonRecord:** A table with each row representing a player or coach of a professional basketball league. Many-to-many relationship with Team and/or Coach depending on the individual.
++ **AllStar**: A table with each row representing a year that a player(PersonRecord) played on a league's All-Star Team, and accompanying play stats.
++ **League**: A table of leagues where each row represents a professional basketball league.
++ **Team:** A table of teams where each row represents a professional basketball team, and its name/league details.
++ **TeamAlign:** A table with each row representing a year that a person played for a team, and accompanying play stats during that stint.
++ **Coach:** A table with each row representing a year that a person coached for a team, and their accompanying play record for that year.
++ **TeamStat:** A table with each row representing a year a team played during the regular season, and their teamwide performance and record.
++ **PersonRecord:** A table with each row representing a player or coach of a professional basketball league. Many-to-many relationship with Team and/or Coach depending on the individual.
 
 ## Package Dependencies
 
