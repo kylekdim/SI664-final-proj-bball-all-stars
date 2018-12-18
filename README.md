@@ -7,8 +7,8 @@ Create a fully functional Django database of player/coach/team/all-star records 
 
 The generated website has the following pages in its navbar:
 
-+ **"About":* A brief explanation of what data the site contains and the data source.
-+ **"All-Stars":* A list view of all players who have been designated 'all-stars' in their respective league(s). Clicking on a name will show a detail view profile for the player containing stats for years they were active.
++ **"About":** A brief explanation of what data the site contains and the data source.
++ **"All-Stars":** A list view of all players who have been designated 'all-stars' in their respective league(s). Clicking on a name will show a detail view profile for the player containing stats for years they were active.
 + **"Team List":** ***NEED AUTHENTICATION TO ACCESS*** A list view of teams for all professional basketball leagues. Each team has their league next to it, and clicking on a team name will show a detail view for the team with their W/L record for each year they were active.
 + **"Person Record List":** A list view of all players and coaches associated with professional basketball leagues. Clicking on a name will show a detail view of the person with records of their years as a player and/or coach, as applicable.
 + **"Person Record Filter":** A set of Crispy Forms filters is provided on the left of the page to narrow down person records that match the specified filtering criteria. Matching records will show the first and last name of a person as a link to a detail view of the person with records of their years as a player and/or coach, as applicable.
