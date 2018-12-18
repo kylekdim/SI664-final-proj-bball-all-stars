@@ -1,4 +1,4 @@
-# SI664-Final-Project-Mens-Basketball
+# SI664-final-proj-bball-all-stars
 
 
 ## Purpose
