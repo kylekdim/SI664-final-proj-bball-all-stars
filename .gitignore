@@ -14,3 +14,12 @@ venv_as/
 #secret settings/keys, etc
 allstars/mysite/settings_secret.py
 allstars/mysite/secret.py
+
+#pycache folders
+**/**/*__pycache__/
+__pycache__/
+**/*__pycache__/
+
+#migrations folders
+**/**/*migrations/
+**/*migrations/
