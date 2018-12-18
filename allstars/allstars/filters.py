@@ -1,5 +1,4 @@
 import django_filters
-from allstars.forms import SearchForm
 from allstars.models import *
 
 
@@ -70,10 +69,9 @@ class PersonRecordFilter(django_filters.FilterSet):
 		lookup_expr='icontains'
 	)
 
-	birthdate = django_filters.NumberFilter(
+	birthdate = django_filters.DateFilter(
 		field_name='birthdate',
-		label='Birthdate (YYYY-MM-DD)',
-		lookup_expr='icontains'
+		label='Birthdate (YYYY-MM-DD)'
 	)
 	birth_city = django_filters.CharFilter(
 		field_name='birth_city',
@@ -83,7 +81,7 @@ class PersonRecordFilter(django_filters.FilterSet):
 
 	birth_state = django_filters.CharFilter(
 		field_name='birth_state',
-		label='Birth State',
+		label='Birth State (e.g.: MI)',
 		lookup_expr='icontains'
 	)
 
@@ -107,7 +105,7 @@ class PersonRecordFilter(django_filters.FilterSet):
 
 	hs_state = django_filters.CharFilter(
 		field_name='hs_state',
-		label='High School State',
+		label='High School State (e.g.: MI)',
 		lookup_expr='icontains'
 	)
 
@@ -117,15 +115,14 @@ class PersonRecordFilter(django_filters.FilterSet):
 		lookup_expr='icontains'
 	)
 
-	death_date = django_filters.NumberFilter(
+	death_date = django_filters.DateFilter(
 		field_name='death_date',
-		label='Death Date (YYYY-MM-DD)',
-		lookup_expr='icontains'
+		label='Death Date (YYYY-MM-DD)'
 	)
 
 	race = django_filters.CharFilter(
 		field_name='race',
-		label='Race',
+		label='Race (e.g. "W")',
 		lookup_expr='icontains'
 	)
 
@@ -147,6 +144,5 @@ class PersonRecordFilter(django_filters.FilterSet):
 		model = PersonRecord
 		queryset = PersonRecord.objects.values('person_record_id', 'first_name', 'last_name').order_by('last_name').distinct()
 		context_object_name = 'person_record_list'
-		# form = SearchForm
 		# fields [] is required, even if empty.
 		fields = []

@@ -6,16 +6,18 @@
 
   <header>
     <div class="row">
-      <div class="col-sm-11">
-        <h2>Basketball Person Records</h2>
+      <div class="col-sm-9">
+        <h2>Professional Basketball - Person Records (Filter)</h2>
       </div>
-      <div class="col-sm-1">
+      <div class="col-sm-2">
         {% if user.is_authenticated %}
         <a class="btn btn-outline-secondary" href="{% url 'person_new' %}">New Person Record</a>
         {% endif %}
       </div>
     </div>
   </header>
+
+  <br>
 
   <div class="row">
     <div class="col-sm-3">
@@ -31,12 +33,17 @@
 
       {% include 'allstars/pagination.html' %}
 
+      <ul>
+
       {% for person in person_record_list %}
-        <h4><a href="{% url 'person_detail' person.person_record_id %}">{{ person.first_name }} {{ person.last_name }}</a></h4>
+
+        <li><a href="{% url 'person_detail' person.person_record_id %}">{{ person.first_name }} {{ person.last_name }}</a></li>
 
     {% empty %}
       Select one or more filters relevant to your search and then click "filter".
     {% endfor %}
+
+  </ul>
 
 
     </div>

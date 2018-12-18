@@ -7,7 +7,7 @@ from django.db.models import Count, F, Q
 from django.db.models import Aggregate
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from allstars.forms import PersonForm, SearchForm
+from allstars.forms import PersonForm
 
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -39,7 +39,7 @@ class AllStarDetailView(generic.DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super(AllStarDetailView, self).get_context_data(**kwargs)
-		context['all_star_list'] = AllStar.objects.select_related('league').values().filter(person_record__person_record_id=self.kwargs['pk']).order_by('year')
+		context['all_star_list'] = AllStar.objects.all().select_related('league').filter(person_record__person_record_id=self.kwargs['pk']).order_by('year')
 		print(context)
 		# And so on for more models
 		return context
@@ -68,7 +68,7 @@ class TeamDetailView(generic.DetailView):
 		return super().dispatch(*args, **kwargs)
 
 	def get_queryset(self):
-		return Team.objects.select_related('league').values('team_id', 'league__league_abbrev', 'name')
+		return Team.objects.select_related('league').values('team_id', 'league__league_name', 'name')
 
 	def get_context_data(self, **kwargs):
 

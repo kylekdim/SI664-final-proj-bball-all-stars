@@ -175,7 +175,7 @@ class League(models.Model):
         return self.league_name
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
 
 class Team(models.Model):
     team_id = models.AutoField(primary_key=True)
@@ -194,7 +194,7 @@ class Team(models.Model):
         return self.name
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
 
 
 class PersonRecord(models.Model):
@@ -218,7 +218,7 @@ class PersonRecord(models.Model):
     hs_city = models.CharField(max_length=50, blank=True, null=True)
     hs_state = models.CharField(max_length=20, blank=True, null=True)
     hs_country = models.CharField(max_length=30, blank=True, null=True)
-    death_date = models.CharField(max_length=20, blank=True, null=True)
+    death_date = models.DateField(blank=True, null=True)
     race = models.CharField(max_length=3, blank=True, null=True)
 
     # Intermediate model (team -> team_align <- person_record)
@@ -246,21 +246,12 @@ class PersonRecord(models.Model):
         return self.first_name + self.last_name
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
 
     @property
     def team_names_player(self):
-        """
-        Returns a list of UNSD regions (names only) associated with a Heritage Site.
-        Note that not all Heritage Sites are associated with a region. In such cases the
-        Queryset will return as <QuerySet [None]> and the list will need to be checked for
-        None or a TypeError (sequence item 0: expected str instance, NoneType found) runtime
-        error will be thrown.
-        :return: string
-        """
         sort_order = ['team_align__team__team_name']
         teams = self.teams_as_player.select_related('team_align').order_by(*sort_order)
-        # countries_sorted = sorted(countries, key=lambda o: o.location.region.region_name)
 
         names = []
         for team in teams:
@@ -272,17 +263,8 @@ class PersonRecord(models.Model):
 
     @property
     def team_names_coach(self):
-        """
-        Returns a list of UNSD regions (names only) associated with a Heritage Site.
-        Note that not all Heritage Sites are associated with a region. In such cases the
-        Queryset will return as <QuerySet [None]> and the list will need to be checked for
-        None or a TypeError (sequence item 0: expected str instance, NoneType found) runtime
-        error will be thrown.
-        :return: string
-        """
         sort_order = ['coach__team__team_name']
         teams = self.teams_as_coach.select_related('coach').order_by(*sort_order)
-        # countries_sorted = sorted(countries, key=lambda o: o.location.region.region_name)
 
         names = []
         for team in teams:
@@ -316,7 +298,7 @@ class TeamAlign(models.Model):
         return self.person_record.first_name + self.person_record.last_name
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
 
 class Coach(models.Model):
     coach_id = models.AutoField(primary_key=True)
@@ -338,7 +320,7 @@ class Coach(models.Model):
         return self.person_record.first_name + self.person_record.last_name
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
 
 
 class TeamStat(models.Model):
@@ -366,4 +348,4 @@ class TeamStat(models.Model):
         return str(self.team_stat_id)
 
     #def get_absolute_url(self):
-        #return reverse('country_detail', args=[str(self.id)])
+        #return reverse('', args=[str(self.id)])
