@@ -66,7 +66,7 @@ Refer to [mwb_models](https://github.com/kylekdim/SI664-Final-Project-Mens-Baske
 |python3-openid  |               3.1.0    |
 |pytz             |              2018.5   |
 |PyYAML            |             3.13     |
-|requests           |            2.19.1   |
+|requests           |            2.21.0   |
 |requests-oauthlib   |           1.0.0    |
 |retrying             |          1.3.3    |
 |selenium              |         3.141.0  |
