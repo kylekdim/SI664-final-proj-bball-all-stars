@@ -1,11 +1,13 @@
 from allstars.models import *
 from rest_framework import response, serializers, status
 
+
 class LeagueSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = League
 		fields = ('league_id', 'league_abbrev', 'league_name')
+
 
 class TeamSerializer(serializers.ModelSerializer):
 
@@ -13,11 +15,13 @@ class TeamSerializer(serializers.ModelSerializer):
 		model = Team
 		fields = ('team_id', 'league', 'team_abbrev', 'name')
 
+
 class TeamStatSerializer(serializers.ModelSerializer):
 	team = TeamSerializer(many=False, read_only=True)
 	class Meta:
 		model = TeamStat
 		fields = ('team_stat_id', 'team', 'year', 'home_won', 'home_lost', 'away_won', 'away_lost', 'neut_won', 'neut_lost', 'won', 'lost', 'games')
+
 
 class TeamAlignSerializer(serializers.ModelSerializer):
 	#person_record = PersonRecordSerializer(many=False, read_only=True)
@@ -38,6 +42,7 @@ class CoachSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Coach
 		fields = ('coach_id', 'person_record', 'year', 'team', 'league', 'won', 'lost')
+
 
 class PersonRecordSerializer(serializers.ModelSerializer):
 	person_id_long = serializers.CharField(
@@ -74,8 +79,8 @@ class PersonRecordSerializer(serializers.ModelSerializer):
 	college = serializers.CharField(
 		allow_blank=True
 	)
-	birthdate = serializers.CharField(
-		allow_blank=True
+	birthdate = serializers.DateField(
+		allow_null=True
 	)
 
 	birth_city = serializers.CharField(
@@ -106,14 +111,13 @@ class PersonRecordSerializer(serializers.ModelSerializer):
 		allow_blank=True
 	)
 
-	death_date = serializers.CharField(
-		allow_blank=True
+	death_date = serializers.DateField(
+		allow_null=True
 	)
 
 	race = serializers.CharField(
 		allow_blank=True
 	)
-
 
 	team_align = TeamAlignSerializer(
 		source='team_align_set', # Note use of _set
@@ -121,10 +125,10 @@ class PersonRecordSerializer(serializers.ModelSerializer):
 		read_only=True
 	)
 
-	team_ids = serializers.PrimaryKeyRelatedField(
-		many=True,
+	team_ids = serializers.ListField(
+		# many=True,
 		write_only=True,
-		queryset=Team.objects.all(),
+		# queryset=Team.objects.all(),
 		source='team_align'
 	)
 
@@ -134,9 +138,20 @@ class PersonRecordSerializer(serializers.ModelSerializer):
 		read_only=True
 	)
 
+	coach_ids = serializers.ListField(
+		# many=True,
+		write_only=True,
+		# queryset=Coach.objects.all(),
+		source='coach'
+	)
+
 	class Meta:
 		model = PersonRecord
-		fields = ('person_record_id', 'person_id_long', 'first_name', 'middle_name', 'last_name', 'full_given_name', 'name_suffix', 'nickname', 'pos', 'height', 'weight', 'college', 'birthdate', 'birth_city', 'birth_state', 'birth_country', 'high_school', 'hs_city', 'hs_state', 'hs_country', 'death_date', 'race', 'team_align', 'team_ids', 'coach')
+		fields = ('person_record_id', 'person_id_long', 'first_name', 'middle_name', 'last_name',
+		          'full_given_name', 'name_suffix', 'nickname', 'pos', 'height', 'weight',
+		          'college', 'birthdate', 'birth_city', 'birth_state', 'birth_country',
+		          'high_school', 'hs_city', 'hs_state', 'hs_country', 'death_date', 'race',
+		          'team_align', 'team_ids', 'coach', 'coach_ids')
 
 	def create(self, validated_data):
 		"""
@@ -151,25 +166,35 @@ class PersonRecordSerializer(serializers.ModelSerializer):
 		"""
 
 		# print(validated_data)
-
-		teams_coach = validated_data.pop('coach')
-		teams_player = validated_data.pop('team_align')
+		teams = validated_data.pop('team_align')
+		coaches = validated_data.pop('coach')
 		person = PersonRecord.objects.create(**validated_data)
+		person_id = person.person_record_id
 
-		if teams_coach is not None:
-			for team in teams_coach:
-				coach.objects.create(
-					person_record_id=person.person_record_id,
-					team_id=teams_coach.team_id
+		if teams is not None:
+			for team in teams:
+				TeamAlign.objects.create(
+					person_record_id=person_id,
+					league_id=team['league_id'],
+					team_id=team['team_id'],
+					stint=team['stint'],
+					year=team['year'],
+					games_played=team['games_played'],
+					minutes=team['minutes'],
+					points=team['points'],
+					assists=team['assists']
 				)
 
-		if teams_player is not None:
-			for team in teams_player:
-				team_align.objects.create(
-					person_record_id=person.person_record_id,
-					team_id=teams_coach.team_id
+		if coaches is not None:
+			for coach in coaches:
+				Coach.objects.create(
+					person_record_id=person_id,
+					league_id=coach['league_id'],
+					team_id=coach['team_id'],
+					year=coach['year'],
+					won=coach['won'],
+					lost=coach['lost']
 				)
-
 
 		return person
 
