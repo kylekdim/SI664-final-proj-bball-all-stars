@@ -8,7 +8,7 @@ class PersonRecordViewSet(viewsets.ModelViewSet):
 	"""
 	This ViewSet provides both 'list' and 'detail' views.
 	"""
-	queryset = PersonRecord.objects.select_related('team_align', 'coach').order_by('last_name')
+	queryset = PersonRecord.objects.order_by('last_name')
 	serializer_class = PersonRecordSerializer
 	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
